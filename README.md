@@ -1,4 +1,4 @@
-# DWAAR — powered by LPAI
+# LAABH — powered by LPAI
 
 Your gateway to local services…
 
@@ -53,4 +53,4 @@ After a public passenger URL is known, generate a QR pointing to that exact HTTP
 
 ## Visual identity
 
-DWAAR uses the supplied unchanged logo, Lato throughout, deep green navigation, gold/orange service accents and orange primary actions. Repeated demo labels are removed from presentation screens at the user's request. Underlying provider records remain synthetic; this is not a live booking service.
+LAABH uses the supplied unchanged logo, Lato throughout, deep green navigation, gold/orange service accents and orange primary actions. Repeated demo labels are removed from presentation screens at the user's request. Underlying provider records remain synthetic; this is not a live booking service.

@@ -62,6 +62,24 @@ export const seed: Provider[] = [
     availability: true,
     is_demo: true,
   },
+  {
+    id: "00000000-0000-4000-8000-000000000004",
+    name: "Demo City Hatchback 01",
+    transport_mode: "Taxi",
+    service_category: "Transport",
+    verification_status: "Verified for prototype",
+    availability: true,
+    is_demo: true,
+  },
+  {
+    id: "00000000-0000-4000-8000-000000000005",
+    name: "Demo Local SUV 01",
+    transport_mode: "Taxi",
+    service_category: "Transport",
+    verification_status: "Verified for prototype",
+    availability: true,
+    is_demo: true,
+  },
 ];
 const url = process.env.NEXT_PUBLIC_SUPABASE_URL,
   key = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
@@ -70,9 +88,14 @@ export const localMode = !db;
 const storageKey = "rupaidiha-pilot-v1";
 export function localData(): Data {
   const raw = localStorage.getItem(storageKey);
-  return raw
-    ? JSON.parse(raw)
-    : { providers: seed, requests: [], feedback: [] };
+  const data: Data = raw ? JSON.parse(raw) : { providers: seed, requests: [], feedback: [] };
+  // Add new presentation listings without resetting requests or availability.
+  const missing = seed.filter(p => !data.providers.some(existing => existing.id === p.id));
+  if (missing.length) {
+    data.providers.push(...missing);
+    localStorage.setItem(storageKey, JSON.stringify(data));
+  }
+  return data;
 }
 function save(data: Data) {
   localStorage.setItem(storageKey, JSON.stringify(data));

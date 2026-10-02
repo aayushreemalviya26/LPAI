@@ -50,3 +50,9 @@ create trigger demo_transition before update on public.requests for each row exe
 create index requests_created_at_idx on public.requests(created_at desc);
 create index requests_provider_id_idx on public.requests(provider_id);
 alter publication supabase_realtime add table public.requests,public.providers,public.feedback;
+
+-- Additional presentation transport options.
+insert into public.providers(id,name,transport_mode) values
+ ('00000000-0000-4000-8000-000000000004','Demo City Hatchback 01','Taxi'),
+ ('00000000-0000-4000-8000-000000000005','Demo Local SUV 01','Taxi')
+on conflict (id) do nothing;

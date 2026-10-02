@@ -69,6 +69,15 @@ function Icon({ kind }: { kind: string }) {
     </svg>
   );
 }
+function Verified() {
+  return <span className="verified" title="Verification applies to this research presentation">
+    <svg className="verification-tick" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="m12 1 3 2 3.6.4 1 3.5L22 10l-1 3.5.4 3.6-3.3 1.5L16 21.5l-4-.5-3.3 1-2.3-2.8L3 18l.2-3.8L1 11l2-3 1-3.5L8 4z"/><path d="m7.5 11.8 3 3 6-6" fill="none" stroke="white" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"/></svg>Verified
+  </span>;
+}
+function vehiclePicture(id: string) {
+  const last = id.slice(-1);
+  return last === '1' ? 'sedan' : last === '3' ? 'mpv' : last === '4' ? 'hatchback' : last === '5' ? 'suv' : 'auto';
+}
 function Badge({ status }: { status: string }) {
   return <span className={"badge " + status.toLowerCase()}>{status}</span>;
 }
@@ -218,17 +227,17 @@ export default function Pilot({
           <div className="brand">
             <Image
               className="brand-logo"
-              src="/dwaar-logo.png"
+              src="/laabh-logo.png"
               width={180}
               height={89}
-              alt="DWAAR — Local Services Around Land Ports, powered by LPAI"
+              alt="LAABH — Local Access And Business Hub, powered by LPAI"
               priority
             />
             <div className="brand-text">
-              <strong>DWAAR</strong>
+              <strong>LAABH</strong>
               <span>powered by LPAI</span>
               <span className="brand-tagline">
-                Your gateway to local services…
+                Your gateway to local services
               </span>
             </div>
           </div>
@@ -298,7 +307,7 @@ export default function Pilot({
               <>
                 <div className="section-intro">
                   <p className="eyebrow">PASSENGER SERVICES</p>
-                  <h1>Your gateway to local services…</h1>
+                  <h1>Your gateway to local services</h1>
                   <p className="port-name">Rupaidiha Land Port</p>
                 </div>
                 <div className="services">
@@ -474,7 +483,7 @@ export default function Pilot({
                   ← Edit requirement
                 </button>
                 <p className="eyebrow">TRANSPORT · 2 OF 3</p>
-                <h1>Choose a provider</h1>
+                <h1>Choose your transport</h1>
                 <p className="trip">
                   {actualDestination} · {count} passenger
                   {count !== 1 ? "s" : ""} · {mode} · {when}
@@ -482,9 +491,10 @@ export default function Pilot({
                 {matches.length ? (
                   matches.map((p) => (
                     <article className="panel provider-result" key={p.id}>
+                      {p.transport_mode !== 'Auto' && <div className={'vehicle-picture vehicle-' + vehiclePicture(p.id)} role="img" aria-label={providerName(p.name) + ' — illustrative vehicle picture'}><span>Illustrative image</span></div>}
                       <div className="split">
                         <span className="mini-label">Local transport</span>
-                        <span className="verified">✓ Verified</span>
+                        <Verified />
                       </div>
                       <h2>{providerName(p.name)}</h2>
                       <p>
@@ -729,7 +739,7 @@ export default function Pilot({
                 </select>
               </label>
               <div className="split">
-                <span className="verified">✓ Verified</span>
+                <Verified />
                 <span className="muted">
                   {selected?.availability ? "Available" : "Unavailable"}
                 </span>
@@ -969,7 +979,7 @@ export default function Pilot({
                         <tr key={p.id}>
                           <td>
                             {providerName(p.name)}
-                            <small className="verified">✓ Verified</small>
+                            <Verified />
                           </td>
                           <td>{p.transport_mode}</td>
                           <td>{rows.length}</td>
@@ -1054,10 +1064,11 @@ export default function Pilot({
           </>
         )}
         <footer>
-          <span>DWAAR · powered by LPAI</span>
+          <span>LAABH · powered by LPAI</span>
           <span>Research presentation · No live bookings</span>
         </footer>
       </main>
     </>
   );
 }
+
