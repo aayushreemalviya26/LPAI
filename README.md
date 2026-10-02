@@ -1,4 +1,6 @@
-# LPAI — Rupaidiha Local Services Pilot
+# DWAAR — powered by LPAI
+
+Your gateway to local services…
 
 Small mobile-first internship research prototype. All providers are fictional demo records, not actual businesses or official LPAI verification. No real booking or payment is made.
 
@@ -18,8 +20,8 @@ Without environment variables the app uses localStorage, starts with three demo 
 ## 60-second demonstration
 
 1. Open Passenger, Provider portal and LPAI dashboard in three tabs of one browser.
-2. Passenger: Transport → Bahraich → Taxi → Find Transport → Demo Local Taxi 01 → Send Request.
-3. Provider: choose Demo Local Taxi 01 → Accept.
+2. Passenger: Transport → Bahraich → Taxi → Find Transport → Local Taxi 01 → Send Request.
+3. Provider: choose Local Taxi 01 → Accept.
 4. Passenger updates automatically. Admin shows the request as Accepted.
 5. Provider: Ride completed (or passenger: Mark as fulfilled).
 6. Passenger: Yes/No → optional feedback → Submit Feedback. Admin fulfilment and feedback update.
@@ -48,3 +50,7 @@ After a public passenger URL is known, generate a QR pointing to that exact HTTP
 ## Checks
 
 `npm run build` and `npm run typecheck`. See `TESTING.md` for actual test results and limitations.
+
+## Visual identity
+
+DWAAR uses the supplied unchanged logo, Lato throughout, deep green navigation, gold/orange service accents and orange primary actions. Repeated demo labels are removed from presentation screens at the user's request. Underlying provider records remain synthetic; this is not a live booking service.
