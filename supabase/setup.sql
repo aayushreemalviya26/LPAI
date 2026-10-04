@@ -29,6 +29,7 @@ alter table public.service_categories enable row level security;
 alter table public.providers enable row level security;
 alter table public.requests enable row level security;
 alter table public.feedback enable row level security;
+revoke all on public.service_categories,public.providers,public.requests,public.feedback from anon,authenticated;
 grant select on public.service_categories,public.providers,public.requests,public.feedback to anon,authenticated;
 grant insert on public.requests,public.feedback to anon,authenticated;
 grant update(status,completed_at) on public.requests to anon,authenticated;
@@ -56,3 +57,4 @@ insert into public.providers(id,name,transport_mode) values
  ('00000000-0000-4000-8000-000000000004','Demo City Hatchback 01','Taxi'),
  ('00000000-0000-4000-8000-000000000005','Demo Local SUV 01','Taxi')
 on conflict (id) do nothing;
+

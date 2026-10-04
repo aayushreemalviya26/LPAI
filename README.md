@@ -54,3 +54,7 @@ After a public passenger URL is known, generate a QR pointing to that exact HTTP
 ## Visual identity
 
 LAABH uses the supplied unchanged logo, Lato throughout, deep green navigation, gold/orange service accents and orange primary actions. Repeated demo labels are removed from presentation screens at the user's request. Underlying provider records remain synthetic; this is not a live booking service.
+
+## Live shared database
+
+As of 4 October 2026, Production is connected to the dedicated LPAI Supabase database. Passenger: https://laabh-lpai.vercel.app/ ; provider: /provider ; admin: /admin. The existing QR is unchanged. Separate phones now share submitted requests. Refresh any already-open tab once and check for Connected session. Select the passenger's chosen provider in the provider dropdown. Previous local-storage records stay local and are not automatically migrated.
