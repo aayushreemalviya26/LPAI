@@ -109,7 +109,15 @@ export default function Pilot({
     [comment, setComment] = useState("");
   async function refresh() {
     try {
-      setData(await readData());
+      const latest = await readData();
+      setData(latest);
+      // Only restore requests that still exist after a successful load.
+      const saved = localStorage.getItem("pilot-active-request");
+      if (view === "passenger" && saved && !latest.requests.some(r => r.id === saved)) {
+        localStorage.removeItem("pilot-active-request");
+        setActiveId("");
+        setStep("home");
+      }
       setReady(true);
     } catch (e) {
       setError(
@@ -714,7 +722,11 @@ export default function Pilot({
               ) : (
                 <div className="panel empty">
                   <p>This request is no longer available.</p>
-                  <button onClick={() => setStep("home")}>
+                    <button onClick={() => {
+                      localStorage.removeItem("pilot-active-request");
+                      setActiveId("");
+                      setStep("home");
+                    }}>
                     Back to services
                   </button>
                 </div>
