@@ -255,7 +255,6 @@ export default function Pilot({
       {view !== "passenger" && <nav aria-label="Service views">
         <div>
           <Link
-            aria-current={view === "passenger" ? "page" : undefined}
             href="/"
           >
             Passenger
