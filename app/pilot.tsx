@@ -252,7 +252,7 @@ export default function Pilot({
           <span className="pilot-label">Rupaidiha Land Port</span>
         </div>
       </header>
-      <nav aria-label="Service views">
+      {view !== "passenger" && <nav aria-label="Service views">
         <div>
           <Link
             aria-current={view === "passenger" ? "page" : undefined}
@@ -273,7 +273,7 @@ export default function Pilot({
             LPAI dashboard
           </Link>
         </div>
-      </nav>
+      </nav>}
       <main
         className={
           view === "admin"
