@@ -8,6 +8,7 @@ export type Provider = {
   verification_status: string;
   availability: boolean;
   is_demo: boolean;
+  base_fare?: number;
 };
 export type Request = {
   id: string;
@@ -21,6 +22,8 @@ export type Request = {
   status: Status;
   created_at: string;
   completed_at: string | null;
+  base_fare: number;
+  platform_fee: number;
 };
 export type Feedback = {
   id: string;
@@ -29,7 +32,11 @@ export type Feedback = {
   comment: string;
   created_at: string;
 };
+export type Payment = { request_id: string; paid_at: string; is_simulated: boolean };
+export const fareFor = (id: string) => [200,100,250,180,250,120,100,150,200,130][Number(id.slice(-3))-1] || 150;
+export const money = (n: number) => new Intl.NumberFormat("en-IN", {style:"currency",currency:"INR",minimumFractionDigits:2}).format(n);
 export type Data = {
+  payments: Payment[];
   providers: Provider[];
   requests: Request[];
   feedback: Feedback[];
@@ -93,7 +100,9 @@ export const localMode = !db;
 const storageKey = "rupaidiha-pilot-v1";
 export function localData(): Data {
   const raw = localStorage.getItem(storageKey);
-  const data: Data = raw ? JSON.parse(raw) : { providers: seed, requests: [], feedback: [] };
+  const data: Data = raw ? JSON.parse(raw) : { providers: seed, requests: [], feedback: [], payments: [] };
+  data.payments ||= [];
+  data.requests.forEach(r => { r.base_fare ??= fareFor(r.provider_id); r.platform_fee ??= Math.round(r.base_fare * 2) / 100; });
   // Add new presentation listings without resetting requests or availability.
   const missing = seed.filter(p => !data.providers.some(existing => existing.id === p.id));
   if (missing.length) {
@@ -112,22 +121,26 @@ export async function readData(): Promise<Data> {
     db.from("providers").select("*").order("name"),
     db.from("requests").select("*").order("created_at", { ascending: false }),
     db.from("feedback").select("*"),
+    db.from("payments").select("*"),
   ]);
   for (const r of results) if (r.error) throw r.error;
   return {
     providers: results[0].data as Provider[],
     requests: results[1].data as Request[],
     feedback: results[2].data as Feedback[],
+    payments: results[3].data as Payment[],
   };
 }
 export async function createRequest(
   input: Omit<
     Request,
-    "id" | "created_at" | "completed_at" | "status" | "service_category"
+    "id" | "created_at" | "completed_at" | "status" | "service_category" | "base_fare" | "platform_fee"
   >,
 ) {
   const r: Request = {
     ...input,
+    base_fare: fareFor(input.provider_id),
+    platform_fee: Math.round(fareFor(input.provider_id) * 2) / 100,
     id: crypto.randomUUID(),
     created_at: new Date().toISOString(),
     completed_at: null,
@@ -209,5 +222,19 @@ export async function availability(id: string, value: boolean) {
       p.id === id ? { ...p, availability: value } : p,
     );
     save(d);
+  }
+}
+
+export async function confirmPayment(request_id: string) {
+  if (db) {
+    const { error } = await db.from('payments').insert({ request_id });
+    if (error && error.code !== '23505') throw error;
+  } else {
+    const d = localData();
+    if (d.requests.find(r => r.id === request_id)?.status !== 'Fulfilled') throw new Error('Complete the ride before payment.');
+    if (!d.payments.some(p => p.request_id === request_id)) {
+      d.payments.push({request_id,paid_at:new Date().toISOString(),is_simulated:true});
+      save(d);
+    }
   }
 }

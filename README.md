@@ -58,3 +58,7 @@ LAABH uses the supplied unchanged logo, Lato throughout, deep green navigation, 
 ## Live shared database
 
 As of 4 October 2026, Production is connected to the dedicated LPAI Supabase database. Passenger: https://laabh-lpai.vercel.app/ ; provider: /provider ; admin: /admin. The existing QR is unchanged. Separate phones now share submitted requests. Refresh any already-open tab once and check for Connected session. Select the passenger's chosen provider in the provider dropdown. Previous local-storage records stay local and are not automatically migrated.
+
+## Presentation fares and checkout
+Each listing has a fixed per-request fare from INR 100 to INR 250. LPAI fee is an additional 2%: INR 200 + INR 4 = INR 204. The server snapshots fare and fee when a request is created. After fulfilment, the passenger can confirm a simulated payment. No money moves. One payment per request prevents duplicate revenue. Dashboard totals include only confirmed payments: total collected = base fares + fees, net local revenue = base fares, LPAI revenue = fees. Existing rides remain unpaid until confirmed.
+For an existing database apply supabase/add-fares-payments.sql once; setup.sql includes it for a new installation.

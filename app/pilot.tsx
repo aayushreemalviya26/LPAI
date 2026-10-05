@@ -14,6 +14,7 @@ import {
   updateStatus,
   submitFeedback,
   availability,
+  fareFor, money, confirmPayment,
 } from "../lib/data";
 const destinations = [
   "Bahraich",
@@ -99,6 +100,7 @@ export default function Pilot({
       providers: seed,
       requests: [],
       feedback: [],
+      payments: [],
     }),
     [ready, setReady] = useState(false),
     [error, setError] = useState(""),
@@ -524,7 +526,7 @@ export default function Pilot({
                       </p>
                       <DriverPortrait id={p.id} />
                       <p className="fare">
-                        Fare: As per applicable fare / provider confirmation
+                        Fare: {money(p.base_fare ?? fareFor(p.id))} + {money(Math.round((p.base_fare ?? fareFor(p.id)) * 2) / 100)} LPAI fee (2%)
                       </p>
                       <button
                         className="primary"
@@ -664,6 +666,12 @@ export default function Pilot({
                       </button>
                     )}
                   </div>
+                  {current.status === "Fulfilled" && <section className="panel checkout">
+                    <h2>{data.payments.some(p => p.request_id === current.id) ? 'Payment recorded' : 'Complete your payment'}</h2>
+                    <dl><dt>Ride fare</dt><dd>{money(current.base_fare)}</dd><dt>LPAI fee (2%)</dt><dd>{money(current.platform_fee)}</dd><dt><strong>Total</strong></dt><dd><strong>{money(Number(current.base_fare) + Number(current.platform_fee))}</strong></dd></dl>
+                    <p className="fineprint">Presentation payment · No money is transferred.</p>
+                    {data.payments.some(p => p.request_id === current.id) ? <div className="notice green">✓ Payment confirmed</div> : <button className="primary" disabled={busy} onClick={() => run(async () => confirmPayment(current.id))}>{busy ? 'Recording…' : 'Confirm payment · ' + money(Number(current.base_fare) + Number(current.platform_fee))}</button>}
+                  </section>}
                   {current.status === "Fulfilled" &&
                     (data.feedback.some((f) => f.request_id === current.id) ? (
                       <div className="notice green" role="status">
@@ -900,6 +908,16 @@ export default function Pilot({
                 </div>
               ))}
             </div>
+            <section className="panel revenue-panel">
+              <h2>Revenue from confirmed payments</h2>
+              <p className="fineprint">Presentation payments only · No actual money collected. The 2% fee is added to the ride fare.</p>
+              <div className="metrics three">{[
+                ['Total collected', data.requests.filter(r => data.payments.some(p => p.request_id === r.id)).reduce((sum,r) => sum + Number(r.base_fare) + Number(r.platform_fee),0)],
+                ['Net local revenue', data.requests.filter(r => data.payments.some(p => p.request_id === r.id)).reduce((sum,r) => sum + Number(r.base_fare),0)],
+                ['LPAI revenue · 2%', data.requests.filter(r => data.payments.some(p => p.request_id === r.id)).reduce((sum,r) => sum + Number(r.platform_fee),0)]
+              ].map(([label,value]) => <div key={label}><span>{label}</span><strong>{money(Number(value))}</strong></div>)}</div>
+              <p className="fineprint">{data.payments.length} confirmed payments · Local revenue goes to service providers; platform fees go to LPAI.</p>
+            </section>
             <div className="admin-grid">
               <section className="panel">
                 <h2>Demand by destination</h2>
