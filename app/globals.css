@@ -1513,6 +1513,27 @@ footer {
 .verification-tick{width:19px;height:19px;flex-shrink:0}.verified{display:inline-flex;align-items:center;gap:5px}.provider-result .verified,.provider-profile .verified,td .verified{color:#1475c9;font-weight:700}td .verified{display:flex;margin-top:4px;font-size:10px}.provider-result{overflow:hidden}.vehicle-picture{height:165px;margin:-20px -20px 14px;background-image:url('/transport-vehicles.png');background-size:200% 200%;background-repeat:no-repeat;position:relative;background-color:#f7f3ea}.vehicle-sedan{background-position:0 0}.vehicle-mpv{background-position:100% 0}.vehicle-hatchback{background-position:0 100%}.vehicle-suv{background-position:100% 100%}.vehicle-picture>span{position:absolute;right:8px;bottom:7px;font-size:9px;color:#344e43;background:#ffffffde;padding:2px 5px;border-radius:2px}.provider-result .split{background:transparent;padding:0;margin:0 0 8px}.provider-result h2{margin-top:9px}.brand-logo{width:190px}.brand-text strong{letter-spacing:2px}@media(max-width:600px){.vehicle-picture{height:148px;margin:-17px -17px 13px}.brand-logo{width:155px}}
 .vehicle-picture{float:left;width:130px;height:130px;margin:0 16px 12px 0;border-radius:3px}.provider-result .primary{clear:both}.provider-result .fare{overflow:hidden}.provider-result .split{justify-content:flex-end}.provider-result .mini-label{display:none}@media(max-width:600px){.vehicle-picture{width:112px;height:112px;margin:0 12px 12px 0}.provider-result h2{font-size:15px}.provider-result .verified{font-size:11px}.vehicle-picture>span{font-size:8px;right:3px;bottom:3px}}
 .brand-text strong{font-weight:900}
+.journey-gallery { display: grid; grid-template-columns: 1.25fr 1fr; gap: 16px; margin-bottom: 22px; }
+.port-photo { position: relative; margin: 0; overflow: hidden; border-radius: 4px; }
+.port-photo img { display: block; width: 100%; height: 210px; object-fit: cover; object-position: center 63%; }
+.port-photo figcaption { position: absolute; bottom: 0; left: 0; background: #075638; color: white; padding: 6px 12px; font-size: 11px; }
+.journey-art { margin: 0; overflow: hidden; border-radius: 4px; border: 1px solid #e5d8b7; }
+.journey-art img { display: block; width: 100%; height: 210px; object-fit: cover; object-position: center 64%; }
+.vehicle-auto-one,.vehicle-auto-two,.vehicle-auto-three,.vehicle-bus-one,.vehicle-bus-two,.vehicle-bus-three { background-image: url('/auto-bus-vehicles.png'); background-size: 300% 200%; }
+.vehicle-auto-one { background-position: 0 0; }
+.vehicle-auto-two { background-position: 100% 0; }
+.vehicle-auto-three { background-position: 50% 0; }
+.vehicle-bus-one { background-position: 0 100%; }
+.vehicle-bus-two { background-position: 50% 100%; }
+.vehicle-bus-three { background-position: 100% 100%; }
+.driver-row { display: flex; align-items: center; gap: 9px; margin: 12px 0; }
+.driver-row strong { display: block; font-size: 12px; color: #174d37; }
+.driver-row small { display: block; font-size: 10px; color: #365548; }
+.driver-photo { display: block; flex: 0 0 44px; width: 44px; height: 44px; border-radius: 50%; border: 2px solid #fff; outline: 1px solid #bad3b8; background-image: url('/driver-portraits.png'); background-size: 300% 200%; }
+.driver-0 { background-position: 0 0; }.driver-1 { background-position: 50% 0; }.driver-2 { background-position: 100% 0; }
+.driver-3 { background-position: 0 100%; }.driver-4 { background-position: 50% 100%; }.driver-5 { background-position: 100% 100%; }
+.provider-result .driver-row { clear: both; padding-top: 5px; }
+@media(max-width:600px) { .journey-gallery { grid-template-columns: 1fr; margin-bottom: 16px; } .journey-art { display: none; } .port-photo img { height: 168px; } }
 
 /* Align the desktop shell and use the available width for service discovery. */
 @media (min-width: 800px) {

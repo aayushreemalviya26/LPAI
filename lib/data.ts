@@ -80,6 +80,11 @@ export const seed: Provider[] = [
     availability: true,
     is_demo: true,
   },
+  { id: "00000000-0000-4000-8000-000000000006", name: "Demo Town Auto Connect", transport_mode: "Auto", service_category: "Transport", verification_status: "Verified for prototype", availability: true, is_demo: true },
+  { id: "00000000-0000-4000-8000-000000000007", name: "Demo Green E-Rickshaw", transport_mode: "Auto", service_category: "Transport", verification_status: "Verified for prototype", availability: true, is_demo: true },
+  { id: "00000000-0000-4000-8000-000000000008", name: "Demo Rupaidiha Bus Connect", transport_mode: "Bus", service_category: "Transport", verification_status: "Verified for prototype", availability: true, is_demo: true },
+  { id: "00000000-0000-4000-8000-000000000009", name: "Demo Regional Bus Service", transport_mode: "Bus", service_category: "Transport", verification_status: "Verified for prototype", availability: true, is_demo: true },
+  { id: "00000000-0000-4000-8000-000000000010", name: "Demo Local Mini Bus", transport_mode: "Bus", service_category: "Transport", verification_status: "Verified for prototype", availability: true, is_demo: true },
 ];
 const url = process.env.NEXT_PUBLIC_SUPABASE_URL,
   key = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;

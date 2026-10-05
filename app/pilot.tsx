@@ -75,8 +75,14 @@ function Verified() {
   </span>;
 }
 function vehiclePicture(id: string) {
+  const extra: Record<string, string> = { '002': 'auto-one', '006': 'auto-two', '007': 'auto-three', '008': 'bus-one', '009': 'bus-two', '010': 'bus-three' };
+  if (extra[id.slice(-3)]) return extra[id.slice(-3)];
   const last = id.slice(-1);
   return last === '1' ? 'sedan' : last === '3' ? 'mpv' : last === '4' ? 'hatchback' : last === '5' ? 'suv' : 'auto';
+}
+function DriverPortrait({ id }: { id: string }) {
+  const slot = (Number(id.slice(-3)) - 1) % 6;
+  return <div className="driver-row"><span className={'driver-photo driver-' + slot} role="img" aria-label="Illustrative driver portrait" /><span><strong>Your local driver</strong><small>Illustrative portrait</small></span></div>;
 }
 function Badge({ status }: { status: string }) {
   return <span className={"badge " + status.toLowerCase()}>{status}</span>;
@@ -317,6 +323,7 @@ export default function Pilot({
                   <h1>Your gateway to local services</h1>
                   <p className="port-name">Rupaidiha Land Port</p>
                 </div>
+                <div className="journey-gallery"><figure className="port-photo"><Image src="/lpai-land-port.png" alt="LPAI land port building and entrance" width={1024} height={724} priority /><figcaption>Connecting people. Bringing services closer.</figcaption></figure><div className="journey-art"><Image src="/local-journey.png" alt="Illustration of local journeys by auto, taxi and bus" width={2048} height={768} /></div></div>
                 <div className="services">
                   {[
                     ["Transport", "Find onward local transport"],
@@ -498,7 +505,7 @@ export default function Pilot({
                 {matches.length ? (
                   matches.map((p) => (
                     <article className="panel provider-result" key={p.id}>
-                      {p.transport_mode !== 'Auto' && <div className={'vehicle-picture vehicle-' + vehiclePicture(p.id)} role="img" aria-label={providerName(p.name) + ' — illustrative vehicle picture'}><span>Illustrative image</span></div>}
+                      {<div className={'vehicle-picture vehicle-' + vehiclePicture(p.id)} role="img" aria-label={providerName(p.name) + ' — illustrative vehicle picture'}><span>Illustrative image</span></div>}
                       <div className="split">
                         <span className="mini-label">Local transport</span>
                         <Verified />
@@ -512,6 +519,7 @@ export default function Pilot({
                             ? " · 3 seats"
                             : " · Capacity subject to confirmation"}
                       </p>
+                      <DriverPortrait id={p.id} />
                       <p className="fare">
                         Fare: As per applicable fare / provider confirmation
                       </p>
@@ -546,9 +554,7 @@ export default function Pilot({
                   <div className="panel empty">
                     <h2>No matching provider</h2>
                     <p>
-                      {mode === "Bus"
-                        ? "Bus transport is not available yet."
-                        : "No available provider matches this mode and passenger count."}
+                      No available provider matches this mode and passenger count.
                     </p>
                     <p>
                       No request has been recorded. You can edit your
@@ -749,6 +755,7 @@ export default function Pilot({
                   ))}
                 </select>
               </label>
+              <DriverPortrait id={provider} />
               <div className="split">
                 <Verified />
                 <span className="muted">
