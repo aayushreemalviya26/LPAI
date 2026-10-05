@@ -82,7 +82,10 @@ function vehiclePicture(id: string) {
 }
 function DriverPortrait({ id }: { id: string }) {
   const slot = (Number(id.slice(-3)) - 1) % 6;
-  return <div className="driver-row"><span className={'driver-photo driver-' + slot} role="img" aria-label="Illustrative driver portrait" /><span><strong>Your local driver</strong><small>Illustrative portrait</small></span></div>;
+  // Fictional names for the presentation's illustrative driver profiles.
+  const names = ['Rajesh Kumar', 'Amit Singh', 'Suresh Yadav', 'Vikas Sharma', 'Mohammad Arif', 'Sunita Verma', 'Ramesh Gupta', 'Imran Khan', 'Mahesh Kumar', 'Deepak Singh'];
+  const name = names[Number(id.slice(-3)) - 1] || 'Local driver';
+  return <div className="driver-row"><span className={'driver-photo driver-' + slot} role="img" aria-label={name + ' — driver portrait'} /><span><strong>{name}</strong><small>Driver</small></span></div>;
 }
 function Badge({ status }: { status: string }) {
   return <span className={"badge " + status.toLowerCase()}>{status}</span>;
