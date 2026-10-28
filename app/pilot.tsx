@@ -120,7 +120,7 @@ export default function Pilot({
     [later, setLater] = useState(""),
     [note, setNote] = useState(""),
     [activeId, setActiveId] = useState(""),
-    [provider, setProvider] = useState(seed[0].id),
+    [provider, setProvider] = useState("all"),
     [success, setSuccess] = useState("Yes"),
     [comment, setComment] = useState("");
   async function refresh() {
@@ -187,7 +187,7 @@ export default function Pilot({
   }
   const current = data.requests.find((r) => r.id === activeId),
     selected = data.providers.find((p) => p.id === provider),
-    received = data.requests.filter((r) => r.provider_id === provider);
+    received = data.requests.filter((r) => provider === "all" || r.provider_id === provider);
   const actualDestination =
     destination === "Other" ? other.trim() : destination;
   const matches = data.providers.filter(
@@ -218,9 +218,10 @@ export default function Pilot({
             <tr>
               <th>Request ID</th>
               <th>Time</th>
-              <th>Destination</th>
-              <th>Mode</th>
+              <th>Destination / item</th>
+              <th>Service / provider</th>
               <th>Status</th>
+              {view === "admin" && <th>Actions</th>}
             </tr>
           </thead>
           <tbody>
@@ -229,10 +230,11 @@ export default function Pilot({
                 <td className="id">{short(r.id)}</td>
                 <td>{time(r.created_at)}</td>
                 <td>{r.destination}</td>
-                <td>{r.preferred_mode}</td>
+                <td>{r.service_category}<br/>{providerName(data.providers.find(p => p.id === r.provider_id)?.name)}</td>
                 <td>
                   <Badge status={r.status} />
                 </td>
+                {view === "admin" && <td><div className="actions">{r.status === "Requested" ? <><button className="primary" disabled={busy} onClick={() => run(async () => updateStatus(r.id,"Accepted"))}>Accept</button><button className="secondary" disabled={busy} onClick={() => run(async () => updateStatus(r.id,"Declined"))}>Decline</button></> : r.status === "Accepted" ? <button className="primary" disabled={busy} onClick={() => run(async () => updateStatus(r.id,"Fulfilled"))}>Complete</button> : "—"}</div></td>}
               </tr>
             ))}
           </tbody>
@@ -768,7 +770,7 @@ export default function Pilot({
         ) : view === "provider" ? (
           <>
             <p className="eyebrow">PROVIDER WORKSPACE</p>
-            <h1>Manage your transport requests</h1>
+            <h1>Manage bookings & orders</h1>
             <div className="panel provider-profile">
               <label>
                 Provider
@@ -776,9 +778,10 @@ export default function Pilot({
                   value={provider}
                   onChange={(e) => setProvider(e.target.value)}
                 >
+                  <option value="all">All providers · all services</option>
                   {data.providers.map((p) => (
                     <option key={p.id} value={p.id}>
-                      {providerName(p.name)}
+                      {p.service_category} · {providerName(p.name)}
                     </option>
                   ))}
                 </select>
@@ -787,7 +790,7 @@ export default function Pilot({
               <div className="split">
                 <Verified />
                 <span className="muted">
-                  {selected?.availability ? "Available" : "Unavailable"}
+                  {provider === "all" ? "Showing all services" : selected?.availability ? "Available" : "Unavailable"}
                 </span>
               </div>
             </div>
@@ -849,9 +852,9 @@ export default function Pilot({
                     <Badge status={r.status} />
                   </div>
                   <h2>{r.destination}</h2>
+                  <p><strong>{r.service_category} · {providerName(data.providers.find(p => p.id === r.provider_id)?.name)}</strong></p>
                   <p>
-                    {r.passenger_count} passenger
-                    {r.passenger_count !== 1 ? "s" : ""} · {r.preferred_mode} ·{" "}
+                    {r.passenger_count} {r.service_category === "Transport" ? "passenger(s)" : r.service_category === "Stay" ? "night(s)" : "unit(s)"} · {r.preferred_mode} ·{" "}
                     {r.requested_for === "Now" ? "Now" : time(r.requested_for)}
                   </p>
                   <p className="muted">Requested {time(r.created_at)}</p>
@@ -935,6 +938,7 @@ export default function Pilot({
               ].map(([label,value]) => <div key={label}><span>{label}</span><strong>{money(Number(value))}</strong></div>)}</div>
               <p className="fineprint">{data.payments.length} confirmed payments · Local revenue goes to service providers; platform fees go to LPAI.</p>
             </section>
+            <section className="panel"><h2>Pending bookings & orders</h2>{reqRows(data.requests.filter(r => r.status === "Requested" || r.status === "Accepted"))}</section>
             <div className="admin-grid">
               <section className="panel">
                 <h2>Demand by destination</h2>
