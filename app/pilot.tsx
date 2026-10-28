@@ -16,6 +16,24 @@ import {
   availability,
   fareFor, money, confirmPayment,
 } from "../lib/data";
+const localListings: Record<string, {name:string; description:string; price:string; detail:string; photo:number}[]> = {
+  Food: [
+    {name:'Rupaidiha Rasoi',description:'Fresh vegetarian thali',price:'₹150 / thali',detail:'Dal, seasonal sabzi, rice, roti and salad.',photo:0},
+    {name:'Border Chai & Snacks',description:'Chai and hot snacks',price:'₹60 / combo',detail:'Two samosas with a freshly brewed cup of chai.',photo:1},
+    {name:'Terai Momo Kitchen',description:'Vegetable momos',price:'₹100 / plate',detail:'Steamed vegetable momos served with spicy chutney.',photo:2}
+  ],
+  Stay: [
+    {name:'Terai Comfort Stay',description:'Standard double room',price:'₹1,200 / night',detail:'A double bed, attached bathroom and a restful space for two.',photo:3},
+    {name:'Rupaidiha Traveller Inn',description:'Budget twin room',price:'₹900 / night',detail:'Two single beds and a simple room for travelling companions.',photo:4},
+    {name:'Gateway Family Lodge',description:'Family room',price:'₹1,800 / night',detail:'A double bed and single bed with space for a family of three.',photo:5}
+  ],
+  'Local Products': [
+    {name:'Terai Basket House',description:'Handwoven cane basket',price:'₹250 / piece',detail:'A natural woven basket for everyday storage and gifting.',photo:6},
+    {name:'Rupaidiha Textile Corner',description:'Woven cotton stole',price:'₹200 / piece',detail:'Soft cotton stoles in colourful woven patterns.',photo:7},
+    {name:'Local Spice Pantry',description:'Everyday spice selection',price:'₹180 / pack',detail:'Turmeric, coriander and chilli powders for the home kitchen.',photo:8}
+  ]
+};
+
 const destinations = [
   "Bahraich",
   "Nepalganj Road Railway Station",
@@ -344,7 +362,7 @@ export default function Pilot({
                       onClick={() =>
                         name === "Transport"
                           ? setStep("form")
-                          : setInfo(info === name ? "" : name)
+                          : (setInfo(name), setStep("browse"))
                       }
                     >
                       <span className="service-icon">
@@ -356,27 +374,15 @@ export default function Pilot({
                         <small>
                           {name === "Transport"
                             ? "Find transport"
-                            : "Not available yet"}
+                            : "Explore options"}
                         </small>
                       </span>
                       <span aria-hidden="true">
-                        {name === "Transport" ? "→" : "+"}
+                        →
                       </span>
                     </button>
                   ))}
                 </div>
-                {info && (
-                  <div className="notice" role="status">
-                    <strong>{info}</strong>
-                    <p>
-                      This service is not available yet. Demand and feasibility
-                      require further validation.
-                    </p>
-                    <button className="text-button" onClick={() => setInfo("")}>
-                      Close
-                    </button>
-                  </div>
-                )}
                 <div className="how">
                   <h2>A simple connection to local services</h2>
                   <ol>
@@ -393,6 +399,15 @@ export default function Pilot({
                 </div>
               </>
             )}
+            {step === "browse" && <section className="local-directory">
+              <button className="back" onClick={() => {setStep('home');setInfo('');}}>← All services</button>
+              <p className="eyebrow">RUPAIDIHA · LOCAL SERVICES</p>
+              <h1>{info}</h1>
+              <div className="local-listings">{(localListings[info] || []).map(item => <article className="local-listing" key={item.name}>
+                <div className={'local-photo local-photo-' + item.photo} role="img" aria-label={item.description} />
+                <div className="local-listing-body"><h2>{item.name}</h2><p className="local-description">{item.description}</p><strong className="local-price">{item.price}</strong><details><summary>View details</summary><p>{item.detail}</p></details></div>
+              </article>)}</div>
+            </section>}
             {step === "form" && (
               <>
                 <button className="back" onClick={() => setStep("home")}>

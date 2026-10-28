@@ -12,3 +12,5 @@ The supplied LAABH logo is used unchanged. Blue verification badges denote the e
 - `public/driver-portraits.png`: built-in image generation; six fictional Indian adult driver portraits in a 3-by-2 contact sheet, used as circular illustrative avatars.
 - `public/local-journey.png`: built-in image generation; green/gold/orange editorial travel illustration with gateway, taxi, auto and bus.
 Driver photos and vehicle pictures are illustrative and do not identify real providers. Original generated assets remain in the Codex generated_images folder.
+
+Local services catalogue: nine fictional businesses and indicative prices for Food, Stay, Local Products, themed for Rupaidiha. No real businesses, affiliations or availability are asserted. Built-in image generation produced local-services-atlas.png: 3x3 photo contact sheet of thali, chai/samosa, momos, three modest guesthouse rooms, baskets, cotton stoles, spices. Cards are informational only.
