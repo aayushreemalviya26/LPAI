@@ -62,3 +62,6 @@ As of 4 October 2026, Production is connected to the dedicated LPAI Supabase dat
 ## Presentation fares and checkout
 Each listing has a fixed per-request fare from INR 100 to INR 250. LPAI fee is an additional 2%: INR 200 + INR 4 = INR 204. The server snapshots fare and fee when a request is created. After fulfilment, the passenger can confirm a simulated payment. No money moves. One payment per request prevents duplicate revenue. Dashboard totals include only confirmed payments: total collected = base fares + fees, net local revenue = base fares, LPAI revenue = fees. Existing rides remain unpaid until confirmed.
 For an existing database apply supabase/add-fares-payments.sql once; setup.sql includes it for a new installation.
+
+## Local service requests
+Stay supports a one-room request with check-in date and 1–20 nights. Food and products support pickup orders of 1–20 units. Requests are shared with the selected provider and admin, using the existing accept/decline/complete workflow and simulated payment confirmation. Prices are calculated server-side from provider unit prices, with a 2% fee added. Nearby places opens a category search in Rupaidiha on Google Maps, not a fabricated address for a fictional listing. Apply supabase/add-local-bookings.sql once to an existing database; fresh setup includes it.

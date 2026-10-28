@@ -16,24 +16,7 @@ import {
   availability,
   fareFor, money, confirmPayment,
 } from "../lib/data";
-const localListings: Record<string, {name:string; description:string; price:string; detail:string; photo:number}[]> = {
-  Food: [
-    {name:'Rupaidiha Rasoi',description:'Fresh vegetarian thali',price:'₹150 / thali',detail:'Dal, seasonal sabzi, rice, roti and salad.',photo:0},
-    {name:'Border Chai & Snacks',description:'Chai and hot snacks',price:'₹60 / combo',detail:'Two samosas with a freshly brewed cup of chai.',photo:1},
-    {name:'Terai Momo Kitchen',description:'Vegetable momos',price:'₹100 / plate',detail:'Steamed vegetable momos served with spicy chutney.',photo:2}
-  ],
-  Stay: [
-    {name:'Terai Comfort Stay',description:'Standard double room',price:'₹1,200 / night',detail:'A double bed, attached bathroom and a restful space for two.',photo:3},
-    {name:'Rupaidiha Traveller Inn',description:'Budget twin room',price:'₹900 / night',detail:'Two single beds and a simple room for travelling companions.',photo:4},
-    {name:'Gateway Family Lodge',description:'Family room',price:'₹1,800 / night',detail:'A double bed and single bed with space for a family of three.',photo:5}
-  ],
-  'Local Products': [
-    {name:'Terai Basket House',description:'Handwoven cane basket',price:'₹250 / piece',detail:'A natural woven basket for everyday storage and gifting.',photo:6},
-    {name:'Rupaidiha Textile Corner',description:'Woven cotton stole',price:'₹200 / piece',detail:'Soft cotton stoles in colourful woven patterns.',photo:7},
-    {name:'Local Spice Pantry',description:'Everyday spice selection',price:'₹180 / pack',detail:'Turmeric, coriander and chilli powders for the home kitchen.',photo:8}
-  ]
-};
-
+import {localListings, LocalListing, catalogueId, cataloguePrices} from "../lib/catalogue";
 const destinations = [
   "Bahraich",
   "Nepalganj Road Railway Station",
@@ -123,6 +106,10 @@ export default function Pilot({
     [ready, setReady] = useState(false),
     [error, setError] = useState(""),
     [busy, setBusy] = useState(false);
+  const [booking, setBooking] = useState<LocalListing | null>(null);
+  const [units, setUnits] = useState(1);
+  const [bookingDate, setBookingDate] = useState('');
+  const today = new Date().toLocaleDateString('en-CA', {timeZone:'Asia/Kolkata'});
   const [step, setStep] = useState("home"),
     [info, setInfo] = useState(""),
     [destination, setDestination] = useState("Bahraich"),
@@ -405,9 +392,24 @@ export default function Pilot({
               <h1>{info}</h1>
               <div className="local-listings">{(localListings[info] || []).map(item => <article className="local-listing" key={item.name}>
                 <div className={'local-photo local-photo-' + item.photo} role="img" aria-label={item.description} />
-                <div className="local-listing-body"><h2>{item.name}</h2><p className="local-description">{item.description}</p><strong className="local-price">{item.price}</strong><details><summary>View details</summary><p>{item.detail}</p></details></div>
+                <div className="local-listing-body"><h2>{item.name}</h2><p className="local-description">{item.description}</p><strong className="local-price">{item.price}</strong><details><summary>View details</summary><p>{item.detail}</p></details><div className="catalogue-actions"><button className="primary" onClick={() => {setBooking(item);setUnits(1);setBookingDate('');setError('');setStep('book');}}>{info === 'Stay' ? 'Book stay' : 'Place order'}</button><a className="secondary" href={'https://www.google.com/maps/search/?api=1&query='+encodeURIComponent((info === 'Stay' ? 'hotels' : info === 'Food' ? 'restaurants' : 'local shops')+' in Rupaidiha Uttar Pradesh')} target="_blank" rel="noopener noreferrer">Nearby places ↗</a></div></div>
               </article>)}</div>
             </section>}
+            {step === 'book' && booking && <>
+              <button className="back" onClick={() => setStep('browse')}>← Back to {info}</button>
+              <h1>{info === 'Stay' ? 'Book your stay' : 'Place your order'}</h1>
+              <form className="panel form" onSubmit={e => {e.preventDefault(); if(info === 'Stay' && (!bookingDate || bookingDate < today)){setError('Choose today or a future check-in date.');return;} run(async () => {
+                const id = await createRequest({service_category:info,provider_id:catalogueId(booking.photo),destination:booking.description,passenger_count:units,preferred_mode:info === 'Stay' ? 'Room' : 'Pickup',requested_for:info === 'Stay' ? bookingDate+'T12:00:00+05:30' : 'Now',note:info === 'Stay' ? units+' night(s) · 1 room' : 'Pickup order · '+units+' unit(s)'});
+                localStorage.setItem('pilot-active-request',id);setActiveId(id);setStep('status');
+              });}}>
+                <h2>{booking.name}</h2><p>{booking.description} · {booking.price}</p>
+                {info === 'Stay' && <label>Check-in date<input type="date" required min={today} value={bookingDate} onChange={e => setBookingDate(e.target.value)} /></label>}
+                <label>{info === 'Stay' ? 'Number of nights (one room)' : 'Quantity'}<input type="number" min={1} max={20} required value={units} onChange={e => setUnits(Number(e.target.value))} /></label>
+                <div className="trip">Subtotal: {money(cataloguePrices[booking.photo]*units)}<br/>LPAI fee (2%): {money(cataloguePrices[booking.photo]*units*0.02)}<br/><strong>Total: {money(cataloguePrices[booking.photo]*units*1.02)}</strong></div>
+                <p className="fineprint">Subject to provider acceptance. {info === 'Stay' ? 'Payment after your stay is completed.' : 'Collect from the provider after acceptance; payment after fulfilment.'}</p>
+                <button className="primary" disabled={busy}>{busy ? 'Sending…' : info === 'Stay' ? 'Send booking request' : 'Send order'}</button>
+              </form>
+            </>}
             {step === "form" && (
               <>
                 <button className="back" onClick={() => setStep("home")}>
@@ -593,7 +595,7 @@ export default function Pilot({
             {step === "status" &&
               (current ? (
                 <>
-                  <p className="eyebrow">TRANSPORT · 3 OF 3</p>
+                  <p className="eyebrow">{current.service_category.toUpperCase()} · REQUEST STATUS</p>
                   <div className="status-heading">
                     <span className="status-symbol">
                       {current.status === "Fulfilled"
@@ -608,7 +610,7 @@ export default function Pilot({
                         : current.status === "Accepted"
                           ? "Your request is accepted"
                           : current.status === "Fulfilled"
-                            ? "Journey fulfilled"
+                            ? "Service completed"
                             : "Request declined"}
                     </h1>
                   </div>
@@ -618,7 +620,7 @@ export default function Pilot({
                       : current.status === "Accepted"
                         ? "Provider accepted your request."
                         : current.status === "Fulfilled"
-                          ? "Thank you for completing your journey."
+                          ? "Thank you. Your service has been completed."
                           : "The provider could not accept this request. Please try another provider."}
                   </p>
                   <div className="panel">
@@ -646,7 +648,7 @@ export default function Pilot({
                       </ol>
                     )}
                     <dl>
-                      <dt>Destination</dt>
+                      <dt>{current.service_category === "Transport" ? "Destination" : "Item / room"}</dt>
                       <dd>{current.destination}</dd>
                       <dt>Provider</dt>
                       <dd>
@@ -656,11 +658,11 @@ export default function Pilot({
                           )?.name,
                         )}
                       </dd>
-                      <dt>Mode / passengers</dt>
+                      <dt>{current.service_category === "Transport" ? "Mode / passengers" : "Type / quantity"}</dt>
                       <dd>
                         {current.preferred_mode} / {current.passenger_count}
                       </dd>
-                      <dt>Departure</dt>
+                      <dt>{current.service_category === "Stay" ? "Check-in" : "Requested for"}</dt>
                       <dd>
                         {current.requested_for === "Now"
                           ? "Now"
@@ -683,7 +685,7 @@ export default function Pilot({
                   </div>
                   {current.status === "Fulfilled" && <section className="panel checkout">
                     <h2>{data.payments.some(p => p.request_id === current.id) ? 'Payment recorded' : 'Complete your payment'}</h2>
-                    <dl><dt>Ride fare</dt><dd>{money(current.base_fare)}</dd><dt>LPAI fee (2%)</dt><dd>{money(current.platform_fee)}</dd><dt><strong>Total</strong></dt><dd><strong>{money(Number(current.base_fare) + Number(current.platform_fee))}</strong></dd></dl>
+                    <dl><dt>Service amount</dt><dd>{money(current.base_fare)}</dd><dt>LPAI fee (2%)</dt><dd>{money(current.platform_fee)}</dd><dt><strong>Total</strong></dt><dd><strong>{money(Number(current.base_fare) + Number(current.platform_fee))}</strong></dd></dl>
                     <p className="fineprint">Presentation payment · No money is transferred.</p>
                     {data.payments.some(p => p.request_id === current.id) ? <div className="notice green">✓ Payment confirmed</div> : <button className="primary" disabled={busy} onClick={() => run(async () => confirmPayment(current.id))}>{busy ? 'Recording…' : 'Confirm payment · ' + money(Number(current.base_fare) + Number(current.platform_fee))}</button>}
                   </section>}
@@ -781,7 +783,7 @@ export default function Pilot({
                   ))}
                 </select>
               </label>
-              <DriverPortrait id={provider} />
+              {selected?.service_category === "Transport" && <DriverPortrait id={provider} />}
               <div className="split">
                 <Verified />
                 <span className="muted">
@@ -884,7 +886,7 @@ export default function Pilot({
                           run(async () => updateStatus(r.id, "Fulfilled"))
                         }
                       >
-                        Ride completed
+                        Service completed
                       </button>
                     )}
                   </div>
@@ -909,7 +911,7 @@ export default function Pilot({
             <div className="metrics">
               {[
                 ["Total requests", data.requests.length],
-                ["Transport requests", data.requests.length],
+                ["Transport requests", data.requests.filter(r => r.service_category === "Transport").length],
                 ["Fulfilled", fulfilled],
                 ["Unmet / pending", data.requests.length - fulfilled],
                 [

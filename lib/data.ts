@@ -1,3 +1,4 @@
+import {localListings,catalogueId,cataloguePrices} from "./catalogue";
 import { createClient } from "@supabase/supabase-js";
 export type Status = "Requested" | "Accepted" | "Fulfilled" | "Declined";
 export type Provider = {
@@ -33,7 +34,7 @@ export type Feedback = {
   created_at: string;
 };
 export type Payment = { request_id: string; paid_at: string; is_simulated: boolean };
-export const fareFor = (id: string) => [200,100,250,180,250,120,100,150,200,130][Number(id.slice(-3))-1] || 150;
+export const fareFor = (id: string) => cataloguePrices[Number(id.slice(-3))-101] || [200,100,250,180,250,120,100,150,200,130][Number(id.slice(-3))-1] || 150;
 export const money = (n: number) => new Intl.NumberFormat("en-IN", {style:"currency",currency:"INR",minimumFractionDigits:2}).format(n);
 export type Data = {
   payments: Payment[];
@@ -92,6 +93,7 @@ export const seed: Provider[] = [
   { id: "00000000-0000-4000-8000-000000000008", name: "Demo Rupaidiha Bus Connect", transport_mode: "Bus", service_category: "Transport", verification_status: "Verified for prototype", availability: true, is_demo: true },
   { id: "00000000-0000-4000-8000-000000000009", name: "Demo Regional Bus Service", transport_mode: "Bus", service_category: "Transport", verification_status: "Verified for prototype", availability: true, is_demo: true },
   { id: "00000000-0000-4000-8000-000000000010", name: "Demo Local Mini Bus", transport_mode: "Bus", service_category: "Transport", verification_status: "Verified for prototype", availability: true, is_demo: true },
+  ...Object.entries(localListings).flatMap(([category,items]) => items.map(item => ({id:catalogueId(item.photo),name:"Demo "+item.name,service_category:category,transport_mode:category === "Stay" ? "Room" : "Pickup",verification_status:"Listed",availability:true,is_demo:true,base_fare:cataloguePrices[item.photo]}))),
 ];
 const url = process.env.NEXT_PUBLIC_SUPABASE_URL,
   key = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
@@ -135,17 +137,17 @@ export async function createRequest(
   input: Omit<
     Request,
     "id" | "created_at" | "completed_at" | "status" | "service_category" | "base_fare" | "platform_fee"
-  >,
+  > & {service_category?: string},
 ) {
   const r: Request = {
     ...input,
-    base_fare: fareFor(input.provider_id),
-    platform_fee: Math.round(fareFor(input.provider_id) * 2) / 100,
+    base_fare: fareFor(input.provider_id) * (input.service_category && input.service_category !== "Transport" ? input.passenger_count : 1),
+    platform_fee: Math.round(fareFor(input.provider_id) * (input.service_category && input.service_category !== "Transport" ? input.passenger_count : 1) * 2) / 100,
     id: crypto.randomUUID(),
     created_at: new Date().toISOString(),
     completed_at: null,
     status: "Requested",
-    service_category: "Transport",
+    service_category: input.service_category || "Transport",
   };
   if (db) {
     const { error } = await db.from("requests").insert(r);
